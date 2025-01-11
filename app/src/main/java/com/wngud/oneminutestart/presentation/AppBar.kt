@@ -31,7 +31,8 @@ fun AppBar(
             title = {
                 Text(
                     text = title,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 26.sp
                 )
             },
             navigationIcon = navigationIcon
@@ -41,7 +42,8 @@ fun AppBar(
             title = {
                 Text(
                     text = title,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 26.sp
                 )
             }
         )
