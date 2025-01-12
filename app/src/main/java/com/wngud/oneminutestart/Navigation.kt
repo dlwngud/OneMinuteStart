@@ -85,7 +85,7 @@ fun ExitDialog(
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(16.dp),
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(16.dp),
         ) {
             Column(
                 modifier = Modifier
@@ -117,7 +117,7 @@ fun ExitDialog(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Gray
                         ),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(16.dp),
                         onClick = {
                             onDismissRequest()
                         }
@@ -130,7 +130,7 @@ fun ExitDialog(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         ),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(16.dp),
                         onClick = {
                             onDismissRequest()
                             exitProcess(0)
