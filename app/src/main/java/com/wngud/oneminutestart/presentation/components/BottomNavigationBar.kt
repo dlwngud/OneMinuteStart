@@ -1,10 +1,8 @@
-package com.wngud.oneminutestart.presentation
+package com.wngud.oneminutestart.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -38,9 +36,7 @@ fun BottomNavigationBar(
     AnimatedVisibility(
         visible = bottomScreens.map { it.route }.contains(currentRoute)
     ) {
-        NavigationBar(
-            modifier = modifier,
-        ) {
+        NavigationBar {
             bottomScreens.forEach { item ->
                 NavigationBarItem(
                     selected = currentRoute == item.route,
@@ -52,7 +48,7 @@ fun BottomNavigationBar(
                                 fontSize = 12.sp
                             ),
                             color = if (currentRoute == item.route) {
-                                if(isDarkTheme) Color.White
+                                if (isDarkTheme) Color.White
                                 else Color.Black
                             } else {
                                 Color.Gray
@@ -64,7 +60,7 @@ fun BottomNavigationBar(
                             painter = painterResource(id = item.icon),
                             contentDescription = item.name,
                             tint = if (currentRoute == item.route) {
-                                if(isDarkTheme) Color.White
+                                if (isDarkTheme) Color.White
                                 else Color.Black
                             } else {
                                 Color.Gray
