@@ -1,4 +1,4 @@
-package com.wngud.oneminutestart.presentation
+package com.wngud.oneminutestart.presentation.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
