@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wngud.oneminutestart.utils.formatTime
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,13 +38,14 @@ import kotlinx.coroutines.delay
 fun CircularCountDownTimer(
     title: String
 ) {
+    val isDarkMode = isSystemInDarkTheme()
     var leftTime by remember { mutableStateOf(60) }
     val progress =
         remember { Animatable(leftTime / 60.0f) }
     val progressTarget = 0f
 
     LaunchedEffect(Unit) {
-        while(leftTime > 0) {
+        while (leftTime > 0) {
             delay(1000)
             leftTime--
         }
@@ -65,7 +67,7 @@ fun CircularCountDownTimer(
     ) {
         CircularProgressIndicator(
             modifier = Modifier.fillMaxSize(),
-            color = Color.LightGray,
+            color = if (isDarkMode) Color.White else Color.LightGray,
             progress = 1f,
             strokeWidth = 10.dp
         )
@@ -75,7 +77,7 @@ fun CircularCountDownTimer(
             progress = progress.value,
             strokeWidth = 10.dp,
             strokeCap = StrokeCap.Round,
-            color = MaterialTheme.colorScheme.primary
+            color = if (isDarkMode) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
         )
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -85,8 +87,8 @@ fun CircularCountDownTimer(
                             formatTime(isLeadingZeroNeeded = true, value = (leftTime / 60) % 60)
                         }:" +
                         formatTime(isLeadingZeroNeeded = true, value = leftTime % 60),
-                fontSize = 48.sp
-
+                fontSize = 48.sp,
+                color = if (isDarkMode) Color.White else Color.Unspecified
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -95,10 +97,12 @@ fun CircularCountDownTimer(
                 Icon(
                     imageVector = Icons.Default.Notifications,
                     modifier = Modifier.padding(4.dp),
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = if (isDarkMode) Color.White else Color.Unspecified
                 )
                 Text(
-                    text = title
+                    text = title,
+                    color = if (isDarkMode) Color.White else Color.Unspecified
                 )
             }
         }
