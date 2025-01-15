@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wngud.oneminutestart.utils.formatTime
 import androidx.compose.animation.core.Animatable
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -73,7 +74,8 @@ fun CircularCountDownTimer(
             modifier = Modifier.fillMaxSize(),
             progress = progress.value,
             strokeWidth = 10.dp,
-            strokeCap = StrokeCap.Round
+            strokeCap = StrokeCap.Round,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
