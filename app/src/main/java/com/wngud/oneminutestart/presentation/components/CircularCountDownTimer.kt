@@ -43,8 +43,8 @@ fun CircularCountDownTimer(
 
     LaunchedEffect(Unit) {
         while(leftTime > 0) {
-            leftTime--
             delay(1000)
+            leftTime--
         }
     }
 
