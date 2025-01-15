@@ -62,7 +62,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -70,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import com.wngud.oneminutestart.Screen
 import com.wngud.oneminutestart.domain.Task
 import com.wngud.oneminutestart.presentation.components.AMPMPicker
 import com.wngud.oneminutestart.presentation.components.AppBar
@@ -187,7 +187,9 @@ fun TimerScreen(
                         emptyMessage = "미루지 말고, 지금 시작할 작업을 추가해보세요\n" +
                                 "작은 시작이 큰 변화를 만들어낼 수 있어요",
                         buttonText = "일단 시작!",
-                        onButtonClick = { },
+                        onButtonClick = { task ->
+                            navController.navigate(Screen.OneMinuteScreen.createRoute(task.id))
+                        },
                         page = page,
                         onDialogRequested = { showTaskDialog = true },
                         onDismissDialog = { showTaskDialog = false },
@@ -228,7 +230,7 @@ fun TaskListTab(
 ) {
     var itemHeight by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
-    var selectedTaskId by remember { mutableStateOf<Int?>(null) }
+    var selectedTaskId by remember { mutableStateOf<Long?>(null) }
 
     if (tasks.isEmpty()) {
         if (page == 0) {
