@@ -1,6 +1,10 @@
 package com.wngud.oneminutestart
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.wngud.oneminutestart.presentation.setting.SettingScreen
 import com.wngud.oneminutestart.presentation.statistics.StatisticsScreen
+import com.wngud.oneminutestart.presentation.timer.MoreScreen
 import com.wngud.oneminutestart.presentation.timer.OneMinuteScreen
 import com.wngud.oneminutestart.presentation.timer.TimerScreen
 import kotlin.system.exitProcess
@@ -44,7 +49,26 @@ fun Navigation(
     val shouldExitApp = remember { mutableStateOf(false) }
 
     NavHost(navController = navController, startDestination = Screen.TimerScreen.route) {
-        composable(Screen.TimerScreen.route) {
+        composable(
+            Screen.TimerScreen.route,
+            exitTransition = {
+                if (navController.currentBackStackEntry?.destination?.route == Screen.OneMinuteScreen.route
+                    || navController.currentBackStackEntry?.destination?.route == Screen.MoreScreen.route) {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
+                        animationSpec = tween(700)
+                    )
+                } else {
+                    null
+                }
+            },
+            popEnterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
+                    animationSpec = tween(700)
+                )
+            },
+        ) {
             TimerScreen(
                 navController = navController,
                 onBackPressed = {
@@ -78,9 +102,50 @@ fun Navigation(
                     defaultValue = -1L
                     nullable = false
                 }
-            )) { backStackEntry ->
+            ),
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
+                    animationSpec = tween(700)
+                )
+            }
+        ) { backStackEntry ->
             val id = backStackEntry.arguments?.getLong("id") ?: -1L
             OneMinuteScreen(
+                navController = navController,
+                id = id
+            )
+        }
+        composable(
+            Screen.MoreScreen.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.LongType
+                    defaultValue = -1L
+                    nullable = false
+                }
+            ),
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
+                    animationSpec = tween(700)
+                )
+            }
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong("id") ?: -1L
+            MoreScreen(
                 navController = navController,
                 id = id
             )
