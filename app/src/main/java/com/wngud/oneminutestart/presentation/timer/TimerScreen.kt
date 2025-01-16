@@ -203,7 +203,9 @@ fun TimerScreen(
                                 "짧은 시간 안에 성취감을 느낄 수 있을 거예요\n" +
                                 "그 작은 시작이 여러분을 더 많은 작업으로 이끌어줄 거예요",
                         buttonText = "더 해볼래!",
-                        onButtonClick = { },
+                        onButtonClick = { task ->
+                            navController.navigate(Screen.MoreScreen.createRoute(task.id))
+                        },
                         page = page,
                         onDialogRequested = { showTaskDialog = true },
                         onDismissDialog = { showTaskDialog = false },
