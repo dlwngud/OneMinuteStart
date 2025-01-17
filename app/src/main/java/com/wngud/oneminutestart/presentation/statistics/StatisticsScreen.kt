@@ -1,7 +1,10 @@
 package com.wngud.oneminutestart.presentation.statistics
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.EaseInOutCubic
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,14 +25,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.wngud.oneminutestart.presentation.components.AppBar
+import ir.ehsannarmani.compose_charts.LineChart
+import ir.ehsannarmani.compose_charts.models.AnimationMode
+import ir.ehsannarmani.compose_charts.models.DotProperties
+import ir.ehsannarmani.compose_charts.models.DrawStyle
+import ir.ehsannarmani.compose_charts.models.GridProperties
+import ir.ehsannarmani.compose_charts.models.HorizontalIndicatorProperties
+import ir.ehsannarmani.compose_charts.models.LabelHelperProperties
+import ir.ehsannarmani.compose_charts.models.LabelProperties
+import ir.ehsannarmani.compose_charts.models.Line
+import ir.ehsannarmani.compose_charts.models.StrokeStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +52,7 @@ fun StatisticsScreen(
     navController: NavHostController,
     onBackPressed: () -> Unit,
 ) {
+    val isDarkMode = isSystemInDarkTheme()
     val choices = remember { mutableStateListOf("주간", "월간") }
     var selectedChoiceIndex = remember { mutableIntStateOf(0) }
 
@@ -111,6 +127,96 @@ fun StatisticsScreen(
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
+            val labelProperties = LabelProperties(
+                enabled = true,
+                textStyle = TextStyle(
+                    color = if (isDarkMode) Color.White else Color.Black
+                ),
+                labels = listOf("월", "화", "수", "목", "금", "토", "일")
+            )
+
+            val gridProperties = GridProperties(
+                enabled = true,
+                xAxisProperties = GridProperties.AxisProperties(
+                    enabled = true,
+                    color = Brush.linearGradient(colors = listOf(Color.LightGray, Color.LightGray)),
+                    style = StrokeStyle.Dashed(intervals = floatArrayOf(10f,10f))
+                ),
+                yAxisProperties = GridProperties.AxisProperties(
+                    enabled = true,
+                    color = Brush.linearGradient(colors = listOf(Color.LightGray, Color.LightGray)),
+                    style = StrokeStyle.Dashed(intervals = floatArrayOf(10f,10f)),
+                    lineCount = 7
+                )
+            )
+            val indicatorProperties = HorizontalIndicatorProperties(
+                enabled = true,
+                textStyle = TextStyle(
+                    color = if (isDarkMode) Color.White else Color.Black
+                )
+            )
+            val labelHelperProperties = LabelHelperProperties(
+                enabled = true,
+                textStyle = TextStyle(
+                    color = if (isDarkMode) Color.White else Color.Black
+                )
+            )
+            LineChart(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                data = remember {
+                    listOf(
+                        Line(
+                            label = "운동하기",
+                            values = listOf(28.0, 41.0, 5.0, 10.0, 35.0, 20.0, 25.0),
+                            color = SolidColor(Color(0xFF23af92)),
+                            firstGradientFillColor = Color(0xFF2BC0A1).copy(alpha = .5f),
+                            secondGradientFillColor = Color.Transparent,
+                            strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
+                            gradientAnimationDelay = 1000,
+                            drawStyle = DrawStyle.Stroke(width = 2.dp),
+                            curvedEdges = true,
+                            dotProperties = DotProperties(
+                                enabled = true,
+                                color = SolidColor(Color.White),
+                                strokeWidth = 2.dp,
+                                radius = 5.dp,
+                                strokeColor = SolidColor(Color(0xFF23af92)),
+                            )
+                        ),
+                        Line(
+                            label = "공부하기",
+                            values = listOf(0.0, 15.0, 25.0, 8.0, 20.0, 0.0, 50.0),
+                            color = SolidColor(Color(0xFF809D3C)),
+                            firstGradientFillColor = Color(0xFFA9C46C).copy(alpha = .5f),
+                            secondGradientFillColor = Color.Transparent,
+                            strokeAnimationSpec = tween(2000, easing = EaseInOutCubic),
+                            gradientAnimationDelay = 1000,
+                            drawStyle = DrawStyle.Stroke(width = 2.dp),
+                            curvedEdges = true,
+                            dotProperties = DotProperties(
+                                enabled = true,
+                                color = SolidColor(Color.White),
+                                strokeWidth = 2.dp,
+                                radius = 5.dp,
+                                strokeColor = SolidColor(Color(0xFF809D3C)),
+                            )
+                        )
+                    )
+                },
+                animationMode = AnimationMode.Together(delayBuilder = {
+                    it * 500L
+                }),
+                labelProperties = labelProperties,
+                gridProperties = gridProperties,
+                indicatorProperties = indicatorProperties,
+                labelHelperProperties = labelHelperProperties
+            )
         }
     }
 }
