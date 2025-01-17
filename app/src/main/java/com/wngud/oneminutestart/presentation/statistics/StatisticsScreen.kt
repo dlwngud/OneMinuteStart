@@ -1,6 +1,7 @@
 package com.wngud.oneminutestart.presentation.statistics
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,10 +11,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -22,11 +31,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.wngud.oneminutestart.presentation.components.AppBar
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
     navController: NavHostController,
     onBackPressed: () -> Unit,
 ) {
+    val choices = remember { mutableStateListOf("주간", "월간") }
+    var selectedChoiceIndex = remember { mutableIntStateOf(0) }
+
     BackHandler {
         onBackPressed()
     }
@@ -35,7 +48,26 @@ fun StatisticsScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             AppBar(
-                title = "통계", hasBackButton = false
+                title = "통계",
+                hasBackButton = false,
+                action = {
+                    SingleChoiceSegmentedButtonRow {
+                        choices.forEachIndexed { index, choice ->
+                            SegmentedButton(
+                                selected = selectedChoiceIndex.intValue == index,
+                                onClick = { selectedChoiceIndex.intValue = index },
+                                shape = SegmentedButtonDefaults.itemShape(
+                                    index = index,
+                                    count = choices.size
+                                ),
+                                icon = {},
+                                border = BorderStroke(0.dp, Color.Transparent)
+                            ) {
+                                Text(choice)
+                            }
+                        }
+                    }
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.background

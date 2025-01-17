@@ -52,7 +52,8 @@ fun MoreScreen(
                 hasBackButton = true,
                 onBackNavClicked = {
                     navController.navigateUp()
-                })
+                },
+                action = {})
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -108,11 +109,10 @@ fun WhiteNoiseItem(
                 modifier = Modifier
                     .height(50.dp)
                     .width(50.dp)
-                    .align(Alignment.CenterHorizontally)
-                    ,
+                    .align(Alignment.CenterHorizontally),
                 painter = painterResource(id = R.drawable.ic_water),
                 contentDescription = null,
-                tint = if(isEnable) Color.Unspecified else Color.LightGray
+                tint = if (isEnable) Color.Unspecified else Color.LightGray
             )
             Slider(
                 value = sliderPosition,

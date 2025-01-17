@@ -1,5 +1,6 @@
 package com.wngud.oneminutestart.presentation.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -16,9 +17,10 @@ import androidx.compose.ui.unit.sp
 fun AppBar(
     title: String,
     hasBackButton: Boolean,
-    onBackNavClicked: () -> Unit = {}
+    onBackNavClicked: () -> Unit = {},
+    action: @Composable RowScope.() -> Unit
 ) {
-    if(hasBackButton) {
+    if (hasBackButton) {
         val navigationIcon: @Composable () -> Unit = {
             IconButton(onClick = { onBackNavClicked() }) {
                 Icon(
@@ -45,7 +47,7 @@ fun AppBar(
                     fontWeight = FontWeight.Bold,
                     fontSize = 26.sp
                 )
-            }
+            }, actions = action
         )
     }
 
