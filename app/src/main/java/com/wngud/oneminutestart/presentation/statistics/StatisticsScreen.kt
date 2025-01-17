@@ -1,13 +1,24 @@
 package com.wngud.oneminutestart.presentation.statistics
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.wngud.oneminutestart.presentation.components.AppBar
 
@@ -28,9 +39,77 @@ fun StatisticsScreen(
             )
         },
         containerColor = MaterialTheme.colorScheme.background
-    ) {
-        Box(modifier = Modifier.padding(it)) {
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Row {
+                    StatisticsItem(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(110.dp),
+                        title = "완료한 작업",
+                        content = "32개",
+                        variation = "+12% ↑"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    StatisticsItem(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(110.dp),
+                        title = "총 집중 시간",
+                        content = "16시간",
+                        variation = "+8% ↑"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    StatisticsItem(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(110.dp),
+                        title = "목표 달성률",
+                        content = "85%",
+                        variation = "-2.1% ↓"
+                    )
+                }
+            }
+        }
+    }
+}
 
+@Composable
+fun StatisticsItem(
+    modifier: Modifier,
+    title: String,
+    content: String,
+    variation: String
+) {
+    Card(
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Text(
+                text = title
+            )
+            Text(
+                text = content,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 39.sp
+            )
+            Text(
+                text = variation,
+                color = if (variation[0] == '+') Color(0xFF4CAF50) else Color(0xFFDB4455),
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
