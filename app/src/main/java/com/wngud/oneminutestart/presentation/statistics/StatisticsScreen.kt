@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,7 +75,6 @@ import ir.ehsannarmani.compose_charts.models.Line
 import ir.ehsannarmani.compose_charts.models.StrokeStyle
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -165,11 +166,18 @@ fun StatisticsScreen(
             }
 
             item {
-                if (selectedChoiceIndex.value == 0) {
-                    WeeklyGraph(isDarkMode)
-                } else {
-                    // 월간 그래프
-                    MonthGraph()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selectedChoiceIndex.value == 0) {
+                        WeeklyGraph(isDarkMode)
+                    } else {
+                        // 월간 그래프
+                        MonthGraph()
+                    }
                 }
             }
         }
@@ -416,13 +424,50 @@ fun MonthGraph(
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
             .background(
                 MaterialTheme.colorScheme.background,
                 shape = RoundedCornerShape(16.dp)
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Row(
+            modifier = Modifier.align(Alignment.End),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Less", color = Color.LightGray, fontSize = 12.sp)
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFFE0E0E0))
+            )
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFFFFF9C4))
+            )
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFFFFF59D))
+            )
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFFFFEB3B))
+            )
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFFFBC02D))
+            )
+            Text(text = "More", color = Color.LightGray, fontSize = 12.sp)
+        }
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.wrapContentWidth(),
