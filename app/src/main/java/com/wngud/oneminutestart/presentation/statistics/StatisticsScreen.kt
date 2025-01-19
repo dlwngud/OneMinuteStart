@@ -1,10 +1,14 @@
 package com.wngud.oneminutestart.presentation.statistics
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,9 +19,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +50,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -62,6 +71,9 @@ import ir.ehsannarmani.compose_charts.models.LabelHelperProperties
 import ir.ehsannarmani.compose_charts.models.LabelProperties
 import ir.ehsannarmani.compose_charts.models.Line
 import ir.ehsannarmani.compose_charts.models.StrokeStyle
+import java.time.LocalDate
+import java.time.YearMonth
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,7 +165,12 @@ fun StatisticsScreen(
             }
 
             item {
-                WeeklyGraph(isDarkMode)
+                if (selectedChoiceIndex.value == 0) {
+                    WeeklyGraph(isDarkMode)
+                } else {
+                    // 월간 그래프
+                    MonthGraph()
+                }
             }
         }
     }
@@ -348,6 +365,129 @@ fun ContinuedAchieveCard(
                         text = "작은 발걸음이 큰 변화를 만들어! \uD83D\uDCAA",
                         fontWeight = FontWeight.Bold
                     )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@SuppressLint("NewApi")
+@Composable
+fun MonthGraph(
+    modifier: Modifier = Modifier,
+    currentDate: LocalDate = LocalDate.now(),
+    completedDays: List<Pair<Int, Int>> = listOf(
+        1 to 4,
+        2 to 0,
+        3 to 9,
+        4 to 2,
+        5 to 10,
+        6 to 1,
+        7 to 7,
+        8 to 5,
+        9 to 3,
+        10 to 0,
+        11 to 8,
+        12 to 6,
+        13 to 2,
+        14 to 10,
+        15 to 4,
+        16 to 7,
+        17 to 1,
+        18 to 9
+    )
+) {
+    val yearMonth = YearMonth.of(currentDate.year, currentDate.month)
+    val daysInMonth = yearMonth.lengthOfMonth()
+    val firstDayOfWeek = yearMonth.atDay(1).dayOfWeek.value % 7 // 0 (Sunday) ~ 6 (Saturday)
+    val today = currentDate.dayOfMonth
+
+    fun getBackgroundColor(tasksCompleted: Int): Color {
+        return when {
+            tasksCompleted == 0 -> Color(0xFFE0E0E0) // Light gray
+            tasksCompleted in 1..3 -> Color(0xFFFFF9C4) // Light yellow
+            tasksCompleted in 4..6 -> Color(0xFFFFF59D) // Medium yellow
+            tasksCompleted in 7..9 -> Color(0xFFFFEB3B) // Deep yellow
+            tasksCompleted >= 10 -> Color(0xFFFBC02D) // Dark yellow
+            else -> Color(0xFFE0E0E0) // Default
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(16.dp)
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.wrapContentWidth(),
+        ) {
+            val daysOfWeek = listOf("일", "월", "화", "수", "목", "금", "토")
+            for (day in daysOfWeek) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(Color.Transparent)
+                ) {
+                    Text(
+                        text = day,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Days Grid
+        val totalCells = firstDayOfWeek + daysInMonth
+        val rows = (totalCells + 6) / 7
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            for (row in 0 until rows) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.wrapContentWidth()
+                ) {
+                    for (col in 0 until 7) {
+                        val cellIndex = row * 7 + col
+                        val day = cellIndex - firstDayOfWeek + 1
+
+                        if (cellIndex < firstDayOfWeek || day > daysInMonth) {
+                            Spacer(modifier = Modifier.size(36.dp))
+                        } else {
+                            val tasksCompleted = completedDays.find { it.first == day }?.second ?: 0
+                            val isToday = day == today
+
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(
+                                        when {
+                                            isToday -> Color(0xFFBBDEFB) // Highlight today's date
+                                            else -> getBackgroundColor(tasksCompleted)
+                                        }
+                                    )
+                            ) {
+                                Text(
+                                    text = day.toString(),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (isToday) Color.Black else Color.DarkGray
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
