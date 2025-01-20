@@ -142,15 +142,15 @@ fun TimerScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             AppBar(
-                title = "안녕하세요, 쭉가님\n바로 시작해 볼까요?", hasBackButton = false
+                title = "안녕하세요, 쭉가님\n바로 시작해 볼까요?", hasBackButton = false, action = {}
             )
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
+                .padding(paddingValues)
         ) {
             TabRow(
                 selectedTabIndex = pagerState.currentPage,

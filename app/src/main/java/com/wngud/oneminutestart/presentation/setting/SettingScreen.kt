@@ -24,7 +24,7 @@ fun SettingScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             AppBar(
-                title = "설정", hasBackButton = false
+                title = "설정", hasBackButton = false, action = {}
             )
         },
         containerColor = MaterialTheme.colorScheme.background

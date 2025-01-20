@@ -26,7 +26,8 @@ fun OneMinuteScreen(
                 hasBackButton = true,
                 onBackNavClicked = {
                     navController.navigateUp()
-                })
+                },
+                action = {})
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
