@@ -63,8 +63,10 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)
 
+    implementation(libs.hilt.android.v251)
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
@@ -73,4 +75,8 @@ dependencies {
     implementation("io.github.ehsannarmani:compose-charts:0.1.0")
 
     implementation("com.airbnb.android:lottie-compose:6.6.2")
+
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-paging:2.6.1")
 }
