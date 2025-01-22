@@ -68,6 +68,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.wngud.oneminutestart.Screen
 import com.wngud.oneminutestart.domain.Task
@@ -79,13 +81,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun TimerScreen(
     navController: NavHostController,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    taskViewModel: TimerViewModel = hiltViewModel<TimerViewModel>()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val tabs = listOf("1분만 해보자!", "더 해볼래?")
     val pagerState = rememberPagerState(pageCount = { 2 })
     var showTaskDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val taskState by taskViewModel.timerState.collectAsStateWithLifecycle()
 
     val dummyTasks = listOf(
         Task(
@@ -132,6 +137,10 @@ fun TimerScreen(
                 showDeleteDialog = false
             }
         )
+    }
+
+    LaunchedEffect(Unit) {
+        taskViewModel.loadTasks()
     }
 
     BackHandler {
@@ -183,7 +192,7 @@ fun TimerScreen(
             ) { page ->
                 when (page) {
                     0 -> TaskListTab(
-                        tasks = dummyTasks.filter { !it.isCompletedOneMinute },
+                        tasks = taskState.tasks.filter { !it.isCompletedOneMinute },
                         emptyMessage = "미루지 말고, 지금 시작할 작업을 추가해보세요\n" +
                                 "작은 시작이 큰 변화를 만들어낼 수 있어요",
                         buttonText = "일단 시작!",
@@ -198,7 +207,7 @@ fun TimerScreen(
                     )
 
                     1 -> TaskListTab(
-                        tasks = dummyTasks.filter { it.isCompletedOneMinute },
+                        tasks = taskState.tasks.filter { it.isCompletedOneMinute },
                         emptyMessage = "1분만이라도 해보세요\n" +
                                 "짧은 시간 안에 성취감을 느낄 수 있을 거예요\n" +
                                 "그 작은 시작이 여러분을 더 많은 작업으로 이끌어줄 거예요",
