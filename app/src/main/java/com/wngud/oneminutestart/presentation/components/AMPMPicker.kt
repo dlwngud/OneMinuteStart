@@ -48,9 +48,9 @@ fun AMPMPicker(numbers: List<String>, selectedItem: (String) -> Unit) {
             itemsIndexed(items = numbers) { index, item ->
                 if (firstVisibleItemIndex.value == index - 1) {
                     textColorState.value = Color.Black
+                    selectedItem(item)
                 } else {
                     textColorState.value = Color.Gray
-                    selectedItem(item)
                 }
                 Box(
                     modifier = Modifier
