@@ -41,6 +41,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -82,7 +84,7 @@ import kotlinx.coroutines.launch
 fun TimerScreen(
     navController: NavHostController,
     onBackPressed: () -> Unit,
-    taskViewModel: TimerViewModel = hiltViewModel<TimerViewModel>()
+    timerViewModel: TimerViewModel = hiltViewModel<TimerViewModel>()
 ) {
     val coroutineScope = rememberCoroutineScope()
     val tabs = listOf("1분만 해보자!", "더 해볼래?")
@@ -90,7 +92,8 @@ fun TimerScreen(
     var showTaskDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    val taskState by taskViewModel.timerState.collectAsStateWithLifecycle()
+    val taskState by timerViewModel.timerState.collectAsStateWithLifecycle()
+    val snackBarHostState = remember { SnackbarHostState() }
 
     val dummyTasks = listOf(
         Task(
@@ -122,6 +125,7 @@ fun TimerScreen(
 
     if (showTaskDialog) {
         TaskDialog(
+            timerViewModel = timerViewModel,
             task = null,
             title = "수정",
             onDismissDialog = {
@@ -140,7 +144,17 @@ fun TimerScreen(
     }
 
     LaunchedEffect(Unit) {
-        taskViewModel.loadTasks()
+        timerViewModel.loadTasks()
+    }
+
+    LaunchedEffect(Unit) {
+        timerViewModel.sideEffects.collect { effect ->
+            when (effect) {
+                is TimerSideEffect.NavigateToMore -> TODO()
+                is TimerSideEffect.NavigateToOne -> TODO()
+                is TimerSideEffect.ShowSnackBar -> snackBarHostState.showSnackbar(effect.message)
+            }
+        }
     }
 
     BackHandler {
@@ -153,6 +167,9 @@ fun TimerScreen(
             AppBar(
                 title = "안녕하세요, 쭉가님\n바로 시작해 볼까요?", hasBackButton = false, action = {}
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackBarHostState)
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -192,6 +209,7 @@ fun TimerScreen(
             ) { page ->
                 when (page) {
                     0 -> TaskListTab(
+                        timerViewModel = timerViewModel,
                         tasks = taskState.tasks.filter { !it.isCompletedOneMinute },
                         emptyMessage = "미루지 말고, 지금 시작할 작업을 추가해보세요\n" +
                                 "작은 시작이 큰 변화를 만들어낼 수 있어요",
@@ -207,6 +225,7 @@ fun TimerScreen(
                     )
 
                     1 -> TaskListTab(
+                        timerViewModel = timerViewModel,
                         tasks = taskState.tasks.filter { it.isCompletedOneMinute },
                         emptyMessage = "1분만이라도 해보세요\n" +
                                 "짧은 시간 안에 성취감을 느낄 수 있을 거예요\n" +
@@ -229,6 +248,7 @@ fun TimerScreen(
 
 @Composable
 fun TaskListTab(
+    timerViewModel: TimerViewModel,
     tasks: List<Task>,
     emptyMessage: String,
     buttonText: String,
@@ -512,10 +532,15 @@ fun SwipeTask(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDialog(
+    timerViewModel: TimerViewModel,
     task: Task?,
     title: String,
     onDismissDialog: () -> Unit
 ) {
+    var name by remember { mutableStateOf(task?.title) }
+    var reminderTime by remember { mutableStateOf(task?.reminderTime) }
+    var isChecked by remember { mutableStateOf(reminderTime != null) }
+
     Dialog(onDismissRequest = { onDismissDialog() }) {
         Card(
             modifier = Modifier
@@ -544,8 +569,10 @@ fun TaskDialog(
                         .padding(horizontal = 16.dp)
                 )
                 OutlinedTextField(
-                    value = "dd",
-                    onValueChange = { },
+                    value = name ?: "",
+                    onValueChange = {
+                        name = it
+                    },
                     label = {
                         Text(
                             "작업 이름",
@@ -571,28 +598,32 @@ fun TaskDialog(
                         modifier = Modifier.weight(1f)
                     )
                     Switch(
-                        checked = true,
-                        onCheckedChange = {}
+                        checked = isChecked,
+                        onCheckedChange = {
+                            isChecked = !isChecked
+                        }
                     )
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    AMPMPicker(AMPM_LIST) { }
-                    Row {
-                        NumberPicker(numbers = HOUR_LIST) {
+                if (isChecked) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        AMPMPicker(AMPM_LIST) { }
+                        Row {
+                            NumberPicker(numbers = HOUR_LIST) {
 
+                            }
+                            Text(text = "시", modifier = Modifier.align(Alignment.CenterVertically))
                         }
-                        Text(text = "시", modifier = Modifier.align(Alignment.CenterVertically))
-                    }
 
-                    Row {
-                        NumberPicker(numbers = MINUTE_LIST) {
+                        Row {
+                            NumberPicker(numbers = MINUTE_LIST) {
 
+                            }
+                            Text(text = "분", modifier = Modifier.align(Alignment.CenterVertically))
                         }
-                        Text(text = "분", modifier = Modifier.align(Alignment.CenterVertically))
                     }
                 }
 
@@ -622,7 +653,16 @@ fun TaskDialog(
                         ),
                         shape = RoundedCornerShape(16.dp),
                         onClick = {
-                            onDismissDialog()
+                            if (name != null) {
+                                val task = Task(
+                                    title = name!!,
+                                    reminderTime = reminderTime ?: ""
+                                )
+                                timerViewModel.addTask(task)
+                                onDismissDialog()
+                            } else {
+                                timerViewModel.postEffect(TimerSideEffect.ShowSnackBar("작업 이름을 작성해 주세요"))
+                            }
                         }
                     ) {
                         Text("추가")
