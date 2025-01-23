@@ -93,12 +93,15 @@ class TimerViewModel @Inject constructor(
         }
     }
 
-    fun updateTask(task: Task) {
-        // Task 수정 로직
+    fun deleteTask(task: Task) {
+        viewModelScope.launch {
+            events.send(TimerEvent.Loading)
+            taskRepository.deleteTask(task)
+        }
     }
 
-    fun deleteTask(taskId: Int) {
-        // Task 삭제 로직
+    fun updateTask(task: Task) {
+        // Task 수정 로직
     }
 
     fun startTimer() {

@@ -91,6 +91,7 @@ fun TimerScreen(
     val pagerState = rememberPagerState(pageCount = { 2 })
     var showTaskDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var selectedTask by remember { mutableStateOf(Task()) }
 
     val taskState by timerViewModel.timerState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -136,8 +137,9 @@ fun TimerScreen(
 
     if (showDeleteDialog) {
         DeleteDialog(
-            task = dummyTasks[0],
+            task = selectedTask,
             onDismissDialog = {
+                timerViewModel.deleteTask(selectedTask)
                 showDeleteDialog = false
             }
         )
@@ -218,6 +220,7 @@ fun TimerScreen(
                             navController.navigate(Screen.OneMinuteScreen.createRoute(task.id))
                         },
                         page = page,
+                        selectedTask = { task -> selectedTask = task },
                         onDialogRequested = { showTaskDialog = true },
                         onDismissDialog = { showTaskDialog = false },
                         onDeleteDialogRequested = { showDeleteDialog = true },
@@ -235,6 +238,7 @@ fun TimerScreen(
                             navController.navigate(Screen.MoreScreen.createRoute(task.id))
                         },
                         page = page,
+                        selectedTask = { task -> selectedTask = task },
                         onDialogRequested = { showTaskDialog = true },
                         onDismissDialog = { showTaskDialog = false },
                         onDeleteDialogRequested = { showDeleteDialog = true },
@@ -253,6 +257,7 @@ fun TaskListTab(
     emptyMessage: String,
     buttonText: String,
     page: Int,
+    selectedTask: (Task) -> Unit,
     onButtonClick: (Task) -> Unit,
     onDialogRequested: () -> Unit,
     onDismissDialog: () -> Unit,
@@ -333,6 +338,7 @@ fun TaskListTab(
                     isSelected = selectedTaskId == task.id,
                     onSelect = { isSelected ->
                         selectedTaskId = if (isSelected) task.id else null
+                        if (isSelected) selectedTask(task)
                     },
                     onDialogRequested = onDialogRequested,
                     onDismissDialog = onDismissDialog,
@@ -680,7 +686,7 @@ fun DeleteDialog(
 ) {
     val isDarkMode = isSystemInDarkTheme()
 
-    Dialog(onDismissRequest = { onDismissDialog() }) {
+    Dialog(onDismissRequest = { }) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -716,9 +722,7 @@ fun DeleteDialog(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Button(
-                        onClick = {
-                            onDismissDialog()
-                        },
+                        onClick = { },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Gray
@@ -752,6 +756,6 @@ fun DeleteDialog(
     }
 }
 
-val HOUR_LIST = (-1..13).toList()
+val HOUR_LIST = (0..13).toList()
 val MINUTE_LIST = (-1..60).toList()
 val AMPM_LIST = listOf("", "오전", "오후", "")
