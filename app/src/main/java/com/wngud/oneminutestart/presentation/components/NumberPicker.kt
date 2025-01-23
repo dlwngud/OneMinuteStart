@@ -58,9 +58,9 @@ fun NumberPicker(numbers: List<Int>, selectedItem: (Int) -> Unit) {
                 } else {
                     if (firstVisibleItemIndex.value == index - 1) {
                         textColorState.value = Color.Black
+                        selectedItem(item)
                     } else {
                         textColorState.value = Color.Gray
-                        selectedItem(item)
                     }
                     Box(
                         modifier = Modifier
