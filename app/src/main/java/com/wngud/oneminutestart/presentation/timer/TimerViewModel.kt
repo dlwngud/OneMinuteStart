@@ -29,6 +29,12 @@ sealed class TimerEvent {
     object ResetStopwatch : TimerEvent()
 }
 
+sealed class TimerSideEffect {
+    data class ShowSnackBar(val message: String) : TimerSideEffect()
+    data class NavigateToOne(val itemId: String) : TimerSideEffect()
+    data class NavigateToMore(val itemId: String) : TimerSideEffect()
+}
+
 data class TimerState(
     val tasks: List<Task> = emptyList(),
     val loading: Boolean = false,
@@ -46,6 +52,9 @@ class TimerViewModel @Inject constructor(
         .runningFold(TimerState(), ::reduceState)
         .stateIn(viewModelScope, SharingStarted.Eagerly, TimerState())
 
+    private val _sideEffects = Channel<TimerSideEffect>()
+    val sideEffects = _sideEffects.receiveAsFlow()
+
     private fun reduceState(current: TimerState, event: TimerEvent): TimerState {
         return when (event) {
             TimerEvent.Loading -> current.copy(loading = true)
@@ -62,6 +71,12 @@ class TimerViewModel @Inject constructor(
         }
     }
 
+    fun postEffect(timerSideEffect: TimerSideEffect) {
+        viewModelScope.launch {
+            _sideEffects.send(timerSideEffect)
+        }
+    }
+
     fun loadTasks() {
         viewModelScope.launch {
             events.send(TimerEvent.Loading)
@@ -72,7 +87,10 @@ class TimerViewModel @Inject constructor(
     }
 
     fun addTask(task: Task) {
-        // Task 추가 로직
+        viewModelScope.launch {
+            events.send(TimerEvent.Loading)
+            taskRepository.saveTask(task)
+        }
     }
 
     fun updateTask(task: Task) {
