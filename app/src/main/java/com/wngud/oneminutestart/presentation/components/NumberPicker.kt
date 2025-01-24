@@ -28,8 +28,12 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun NumberPicker(numbers: List<Int>, selectedItem: (Int) -> Unit) {
-    val listState = rememberLazyListState(0, 0)
+fun NumberPicker(numbers: List<Int>, initialSelectedItem: Int?, selectedItem: (Int) -> Unit) {
+    val idx = initialSelectedItem ?: 0
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = numbers.indexOf(idx - 1),
+        0
+    )
     val coroutineScope = rememberCoroutineScope()
 
     val isScrollInProgress = remember { derivedStateOf { listState.isScrollInProgress } }
@@ -96,13 +100,4 @@ fun NumberPicker(numbers: List<Int>, selectedItem: (Int) -> Unit) {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreView() {
-    NumberPicker(
-        (-1..13).toList(),
-        {}
-    )
 }

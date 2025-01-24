@@ -78,6 +78,8 @@ import com.wngud.oneminutestart.domain.Task
 import com.wngud.oneminutestart.presentation.components.AMPMPicker
 import com.wngud.oneminutestart.presentation.components.AppBar
 import com.wngud.oneminutestart.presentation.components.NumberPicker
+import com.wngud.oneminutestart.utils.extractTimeComponents
+import com.wngud.oneminutestart.utils.formatTime
 import kotlinx.coroutines.launch
 
 @Composable
@@ -127,8 +129,7 @@ fun TimerScreen(
     if (showTaskDialog) {
         TaskDialog(
             timerViewModel = timerViewModel,
-            task = null,
-            title = "수정",
+            task = selectedTask,
             onDismissDialog = {
                 showTaskDialog = false
             }
@@ -355,6 +356,7 @@ fun TaskListTab(
                             .height(itemHeight),
                         shape = RoundedCornerShape(16.dp),
                         onClick = {
+                            selectedTask(Task())
                             onDialogRequested()
                         }
                     ) {
@@ -539,13 +541,17 @@ fun SwipeTask(
 @Composable
 fun TaskDialog(
     timerViewModel: TimerViewModel,
-    task: Task?,
-    title: String,
+    task: Task,
     onDismissDialog: () -> Unit
 ) {
-    var name by remember { mutableStateOf(task?.title) }
-    var reminderTime by remember { mutableStateOf(task?.reminderTime) }
-    var isChecked by remember { mutableStateOf(reminderTime != null) }
+    var name by remember { mutableStateOf(task.title) }
+    var reminderTime by remember { mutableStateOf(extractTimeComponents(task.reminderTime)) }
+    var isChecked by remember { mutableStateOf(reminderTime.isNotEmpty()) }
+    val isEdit by remember { mutableStateOf(task.title.isNotEmpty()) }
+    var (a, h, m) = reminderTime.split(" ")
+    var ampm by remember { mutableStateOf(a) }
+    var hour by remember { mutableStateOf(h) }
+    var minute by remember { mutableStateOf(m) }
 
     Dialog(onDismissRequest = { onDismissDialog() }) {
         Card(
@@ -563,7 +569,7 @@ fun TaskDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = title,
+                    text = if (isEdit) "수정" else "추가",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -575,7 +581,7 @@ fun TaskDialog(
                         .padding(horizontal = 16.dp)
                 )
                 OutlinedTextField(
-                    value = name ?: "",
+                    value = name,
                     onValueChange = {
                         name = it
                     },
@@ -616,17 +622,19 @@ fun TaskDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        AMPMPicker(AMPM_LIST) { }
+                        AMPMPicker(AMPM_LIST, if(ampm == "오전") 1 else 2) {
+                            ampm = "$it "
+                        }
                         Row {
-                            NumberPicker(numbers = HOUR_LIST) {
-
+                            NumberPicker(numbers = HOUR_LIST, h.toInt()) {
+                                hour = "${formatTime(true, it)}:"
                             }
                             Text(text = "시", modifier = Modifier.align(Alignment.CenterVertically))
                         }
 
                         Row {
-                            NumberPicker(numbers = MINUTE_LIST) {
-
+                            NumberPicker(numbers = MINUTE_LIST, m.toInt()) {
+                                minute = formatTime(true, it)
                             }
                             Text(text = "분", modifier = Modifier.align(Alignment.CenterVertically))
                         }
@@ -659,12 +667,23 @@ fun TaskDialog(
                         ),
                         shape = RoundedCornerShape(16.dp),
                         onClick = {
-                            if (name != null) {
-                                val task = Task(
-                                    title = name!!,
-                                    reminderTime = reminderTime ?: ""
-                                )
-                                timerViewModel.addTask(task)
+                            if (name.isNotEmpty()) {
+                                if (isEdit) {
+                                    timerViewModel.updateTask(
+                                        task.copy(
+                                            title = name,
+                                            reminderTime = ampm + hour + minute
+                                        )
+                                    )
+                                } else {
+                                    timerViewModel.addTask(
+                                        task.copy(
+                                            title = name,
+                                            reminderTime = ampm + hour + minute
+                                        )
+                                    )
+                                }
+
                                 onDismissDialog()
                             } else {
                                 timerViewModel.postEffect(TimerSideEffect.ShowSnackBar("작업 이름을 작성해 주세요"))
