@@ -101,7 +101,10 @@ class TimerViewModel @Inject constructor(
     }
 
     fun updateTask(task: Task) {
-        // Task 수정 로직
+        viewModelScope.launch {
+            events.send(TimerEvent.Loading)
+            taskRepository.updateTask(task)
+        }
     }
 
     fun startTimer() {
