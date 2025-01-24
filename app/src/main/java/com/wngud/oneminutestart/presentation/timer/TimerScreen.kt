@@ -98,34 +98,6 @@ fun TimerScreen(
     val taskState by timerViewModel.timerState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val dummyTasks = listOf(
-        Task(
-            id = 1,
-            title = "운동하기",
-            reminderTime = "07:00",
-            isCompletedOneMinute = false
-        ),
-        Task(
-            id = 2,
-            title = "공부하기",
-            reminderTime = null,
-            isCompletedOneMinute = false
-        ),
-        Task(
-            id = 3,
-            title = "밥먹기",
-            reminderTime = "12:00",
-            isCompletedOneMinute = false
-        ),
-        Task(
-            id = 4,
-            title = "명상하기",
-            reminderTime = "22:00",
-            isCompletedOneMinute = true
-        )
-    )
-    val dummyEmptyList = listOf<Task>()
-
     if (showTaskDialog) {
         TaskDialog(
             timerViewModel = timerViewModel,
@@ -140,8 +112,10 @@ fun TimerScreen(
         DeleteDialog(
             task = selectedTask,
             onDismissDialog = {
-                timerViewModel.deleteTask(selectedTask)
                 showDeleteDialog = false
+            },
+            onDelete = {
+                timerViewModel.deleteTask(selectedTask)
             }
         )
     }
@@ -622,7 +596,7 @@ fun TaskDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        AMPMPicker(AMPM_LIST, if(ampm == "오전") 1 else 2) {
+                        AMPMPicker(AMPM_LIST, if (ampm == "오전") 1 else 2) {
                             ampm = "$it "
                         }
                         Row {
@@ -701,11 +675,12 @@ fun TaskDialog(
 @Composable
 fun DeleteDialog(
     task: Task,
-    onDismissDialog: () -> Unit
+    onDismissDialog: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     val isDarkMode = isSystemInDarkTheme()
 
-    Dialog(onDismissRequest = { }) {
+    Dialog(onDismissRequest = { onDismissDialog() }) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -741,7 +716,7 @@ fun DeleteDialog(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Button(
-                        onClick = { },
+                        onClick = { onDismissDialog() },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Gray
@@ -761,6 +736,7 @@ fun DeleteDialog(
                         ),
                         shape = RoundedCornerShape(16.dp),
                         onClick = {
+                            onDelete()
                             onDismissDialog()
                         }
                     ) {
