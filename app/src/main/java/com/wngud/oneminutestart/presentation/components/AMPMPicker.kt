@@ -25,8 +25,13 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun AMPMPicker(numbers: List<String>, selectedItem: (String) -> Unit) {
-    val listState = rememberLazyListState(0, 0)
+fun AMPMPicker(
+    numbers: List<String>,
+    initialSelectedItem: Int?,
+    selectedItem: (String) -> Unit
+) {
+    val idx = initialSelectedItem ?: 0
+    val listState = rememberLazyListState(idx - 1, 0)
     val coroutineScope = rememberCoroutineScope()
 
     val isScrollInProgress = remember { derivedStateOf { listState.isScrollInProgress } }
