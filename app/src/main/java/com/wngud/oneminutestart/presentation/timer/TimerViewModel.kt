@@ -21,6 +21,7 @@ sealed class TimerEvent {
     data class AddTask(val task: Task) : TimerEvent()
     data class UpdateTask(val task: Task) : TimerEvent()
     data class DeleteTask(val taskId: Long) : TimerEvent()
+    data class LoadDetailTask(val taskId: Long) : TimerEvent()
     object StartTimer : TimerEvent()
     object StopTimer : TimerEvent()
     object ResetTimer : TimerEvent()
@@ -31,12 +32,13 @@ sealed class TimerEvent {
 
 sealed class TimerSideEffect {
     data class ShowSnackBar(val message: String) : TimerSideEffect()
-    data class NavigateToOne(val itemId: String) : TimerSideEffect()
-    data class NavigateToMore(val itemId: String) : TimerSideEffect()
+    data class NavigateToOne(val itemId: Long) : TimerSideEffect()
+    data class NavigateToMore(val itemId: Long) : TimerSideEffect()
 }
 
 data class TimerState(
     val tasks: List<Task> = emptyList(),
+    val detailTask: Task = Task(),
     val loading: Boolean = false,
     val error: String? = null
 )
@@ -68,6 +70,9 @@ class TimerViewModel @Inject constructor(
             TimerEvent.StopStopwatch -> TODO()
             TimerEvent.StopTimer -> TODO()
             is TimerEvent.UpdateTask -> TODO()
+            is TimerEvent.LoadDetailTask -> current.copy(
+                loading = false,
+                detailTask = current.tasks.find { it.id == event.taskId } ?: Task())
         }
     }
 
@@ -104,6 +109,14 @@ class TimerViewModel @Inject constructor(
         viewModelScope.launch {
             events.send(TimerEvent.Loading)
             taskRepository.updateTask(task)
+        }
+    }
+
+    fun loadDetailTask(taskId: Long) {
+        viewModelScope.launch {
+            taskRepository.getTaskById(taskId).collectLatest { task ->
+                events.send(TimerEvent.LoadDetailTask(task.id))
+            }
         }
     }
 
