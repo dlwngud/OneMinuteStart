@@ -128,7 +128,10 @@ fun TimerScreen(
         timerViewModel.sideEffects.collect { effect ->
             when (effect) {
                 is TimerSideEffect.NavigateToMore -> TODO()
-                is TimerSideEffect.NavigateToOne -> TODO()
+                is TimerSideEffect.NavigateToOne -> {
+                    timerViewModel.loadDetailTask(effect.itemId)
+                    navController.navigate(Screen.OneMinuteScreen.createRoute(effect.itemId))
+                }
                 is TimerSideEffect.ShowSnackBar -> snackBarHostState.showSnackbar(effect.message)
             }
         }
@@ -192,7 +195,7 @@ fun TimerScreen(
                                 "작은 시작이 큰 변화를 만들어낼 수 있어요",
                         buttonText = "일단 시작!",
                         onButtonClick = { task ->
-                            navController.navigate(Screen.OneMinuteScreen.createRoute(task.id))
+                            timerViewModel.postEffect(TimerSideEffect.NavigateToOne(task.id))
                         },
                         page = page,
                         selectedTask = { task -> selectedTask = task },
