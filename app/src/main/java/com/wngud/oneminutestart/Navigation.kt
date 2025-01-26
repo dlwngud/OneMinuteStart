@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -40,6 +41,7 @@ import com.wngud.oneminutestart.presentation.statistics.StatisticsScreen
 import com.wngud.oneminutestart.presentation.timer.MoreScreen
 import com.wngud.oneminutestart.presentation.timer.OneMinuteScreen
 import com.wngud.oneminutestart.presentation.timer.TimerScreen
+import com.wngud.oneminutestart.presentation.timer.TimerViewModel
 import kotlin.system.exitProcess
 
 @Composable
@@ -68,12 +70,17 @@ fun Navigation(
                     animationSpec = tween(700)
                 )
             },
-        ) {
+        ) { entry ->
+            val parentEntry = remember(entry) {
+                navController.getBackStackEntry(Screen.TimerScreen.route)
+            }
+            val timerViewModel: TimerViewModel = hiltViewModel(parentEntry)
             TimerScreen(
                 navController = navController,
                 onBackPressed = {
                     shouldExitApp.value = true
-                }
+                },
+                timerViewModel = timerViewModel
             )
         }
         composable(Screen.StatisticsScreen.route) {
@@ -115,11 +122,16 @@ fun Navigation(
                     animationSpec = tween(700)
                 )
             }
-        ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getLong("id") ?: -1L
+        ) { entry ->
+            val parentEntry = remember(entry) {
+                navController.getBackStackEntry(Screen.TimerScreen.route)
+            }
+            val timerViewModel: TimerViewModel = hiltViewModel(parentEntry)
+            val id = entry.arguments?.getLong("id") ?: -1L
             OneMinuteScreen(
                 navController = navController,
-                id = id
+                id = id,
+                timerViewModel = timerViewModel
             )
         }
         composable(
@@ -143,11 +155,16 @@ fun Navigation(
                     animationSpec = tween(700)
                 )
             }
-        ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getLong("id") ?: -1L
+        ) { entry ->
+            val parentEntry = remember(entry) {
+                navController.getBackStackEntry(Screen.TimerScreen.route)
+            }
+            val timerViewModel: TimerViewModel = hiltViewModel(parentEntry)
+            val id = entry.arguments?.getLong("id") ?: -1L
             MoreScreen(
                 navController = navController,
-                id = id
+                id = id,
+                timerViewModel = timerViewModel
             )
         }
     }
