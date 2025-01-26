@@ -13,8 +13,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.Icon
@@ -33,8 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.wear.compose.material.Text
 import com.wngud.oneminutestart.R
 import com.wngud.oneminutestart.presentation.components.AppBar
 import com.wngud.oneminutestart.presentation.components.CircularStopWatch
@@ -42,8 +40,11 @@ import com.wngud.oneminutestart.presentation.components.CircularStopWatch
 @Composable
 fun MoreScreen(
     navController: NavHostController,
-    id: Long
+    id: Long,
+    timerViewModel: TimerViewModel
 ) {
+    val taskState by timerViewModel.timerState.collectAsStateWithLifecycle()
+
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
         topBar = {
@@ -63,7 +64,7 @@ fun MoreScreen(
                 .padding(paddingValues)
                 .padding(16.dp),
         ) {
-            CircularStopWatch("운동하기")
+            CircularStopWatch(taskState.detailTask.title)
 
             Spacer(modifier = Modifier.height(32.dp))
 

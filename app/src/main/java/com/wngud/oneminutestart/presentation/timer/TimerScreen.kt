@@ -127,7 +127,10 @@ fun TimerScreen(
     LaunchedEffect(Unit) {
         timerViewModel.sideEffects.collect { effect ->
             when (effect) {
-                is TimerSideEffect.NavigateToMore -> TODO()
+                is TimerSideEffect.NavigateToMore -> {
+                    timerViewModel.loadDetailTask(effect.itemId)
+                    navController.navigate(Screen.MoreScreen.createRoute(effect.itemId))
+                }
                 is TimerSideEffect.NavigateToOne -> {
                     timerViewModel.loadDetailTask(effect.itemId)
                     navController.navigate(Screen.OneMinuteScreen.createRoute(effect.itemId))
@@ -213,7 +216,7 @@ fun TimerScreen(
                                 "그 작은 시작이 여러분을 더 많은 작업으로 이끌어줄 거예요",
                         buttonText = "더 해볼래!",
                         onButtonClick = { task ->
-                            navController.navigate(Screen.MoreScreen.createRoute(task.id))
+                            timerViewModel.postEffect(TimerSideEffect.NavigateToMore(task.id))
                         },
                         page = page,
                         selectedTask = { task -> selectedTask = task },
