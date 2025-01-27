@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -131,10 +132,12 @@ fun TimerScreen(
                     timerViewModel.loadDetailTask(effect.itemId)
                     navController.navigate(Screen.MoreScreen.createRoute(effect.itemId))
                 }
+
                 is TimerSideEffect.NavigateToOne -> {
                     timerViewModel.loadDetailTask(effect.itemId)
                     navController.navigate(Screen.OneMinuteScreen.createRoute(effect.itemId))
                 }
+
                 is TimerSideEffect.ShowSnackBar -> snackBarHostState.showSnackbar(effect.message)
             }
         }
@@ -474,7 +477,12 @@ fun SwipeTask(
                     .onGloballyPositioned { coordinates ->
                         onItemHeightChange(coordinates.size)
                     },
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                onClick = {
+                    coroutineScope.launch {
+                        swipeableState.animateTo(0, tween(600, 0))
+                    }
+                }
             ) {
                 Row(
                     modifier = Modifier
