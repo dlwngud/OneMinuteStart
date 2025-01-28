@@ -12,7 +12,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.wngud.oneminutestart.presentation.components.AppBar
@@ -50,7 +49,10 @@ fun OneMinuteScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            CircularCountDownTimer(taskState.detailTask.title)
+            CircularCountDownTimer(
+                taskState.detailTask.title,
+                { timerViewModel.updateTask(taskState.detailTask.copy(isCompletedOneMinute = true)) }
+            )
         }
     }
 }
