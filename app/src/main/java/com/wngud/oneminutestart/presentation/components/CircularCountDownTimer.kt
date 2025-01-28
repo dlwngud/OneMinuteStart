@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wngud.oneminutestart.utils.formatTime
@@ -36,18 +35,27 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun CircularCountDownTimer(
-    title: String
+    title: String,
+    oneMinuteEnd: () -> Unit
 ) {
     val isDarkMode = isSystemInDarkTheme()
     var leftTime by remember { mutableStateOf(60) }
     val progress =
         remember { Animatable(leftTime / 60.0f) }
     val progressTarget = 0f
+    var isZero by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        while (leftTime > 0) {
-            delay(1000)
-            leftTime--
+    LaunchedEffect(isZero) {
+        if (leftTime > 0) {
+            while (leftTime > 0) {
+                delay(1000)
+                leftTime--
+                if (leftTime == 0) {
+                    isZero = true
+                }
+            }
+        } else {
+            oneMinuteEnd()
         }
     }
 
@@ -107,10 +115,4 @@ fun CircularCountDownTimer(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun A() {
-    CircularCountDownTimer("운동하기")
 }
