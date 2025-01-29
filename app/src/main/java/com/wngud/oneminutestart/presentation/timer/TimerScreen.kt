@@ -208,7 +208,11 @@ fun TimerScreen(
                         onDialogRequested = { showTaskDialog = true },
                         onDismissDialog = { showTaskDialog = false },
                         onDeleteDialogRequested = { showDeleteDialog = true },
-                        onDismissDeleteDialog = { showDeleteDialog = false }
+                        onDismissDeleteDialog = { showDeleteDialog = false },
+                        onAddClicked = {
+                            showTaskDialog = true
+                            selectedTask = Task()
+                        }
                     )
 
                     1 -> TaskListTab(
@@ -226,7 +230,11 @@ fun TimerScreen(
                         onDialogRequested = { showTaskDialog = true },
                         onDismissDialog = { showTaskDialog = false },
                         onDeleteDialogRequested = { showDeleteDialog = true },
-                        onDismissDeleteDialog = { showDeleteDialog = false }
+                        onDismissDeleteDialog = { showDeleteDialog = false },
+                        onAddClicked = {
+                            showTaskDialog = true
+                            selectedTask = Task()
+                        }
                     )
                 }
             }
@@ -246,7 +254,8 @@ fun TaskListTab(
     onDialogRequested: () -> Unit,
     onDismissDialog: () -> Unit,
     onDeleteDialogRequested: () -> Unit,
-    onDismissDeleteDialog: () -> Unit
+    onDismissDeleteDialog: () -> Unit,
+    onAddClicked: () -> Unit
 ) {
     var itemHeight by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
@@ -273,7 +282,7 @@ fun TaskListTab(
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         shape = RoundedCornerShape(16.dp),
                         onClick = {
-                            onDialogRequested()
+                            onAddClicked()
                         }
                     ) {
                         Row(
@@ -339,8 +348,7 @@ fun TaskListTab(
                             .height(itemHeight),
                         shape = RoundedCornerShape(16.dp),
                         onClick = {
-                            selectedTask(Task())
-                            onDialogRequested()
+                            onAddClicked()
                         }
                     ) {
                         Row(
