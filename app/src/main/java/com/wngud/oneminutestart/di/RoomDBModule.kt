@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.wngud.oneminutestart.data.db.local.TaskDao
 import com.wngud.oneminutestart.data.db.local.TaskDatabase
+import com.wngud.oneminutestart.data.db.local.TaskDatabase.Companion.MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,7 +19,8 @@ object RoomDBModule {
     @Provides
     @Singleton
     fun provideTaskDatabase(@ApplicationContext context: Context): TaskDatabase =
-        Room.databaseBuilder(context, TaskDatabase::class.java, "task_table").build()
+        Room.databaseBuilder(context, TaskDatabase::class.java, "task_table2")
+            .addMigrations(MIGRATION_1_2).build()
 
     @Provides
     @Singleton
