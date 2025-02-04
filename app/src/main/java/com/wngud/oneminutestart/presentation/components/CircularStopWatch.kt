@@ -1,5 +1,7 @@
 package com.wngud.oneminutestart.presentation.components
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
@@ -21,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wngud.oneminutestart.utils.formatTime
@@ -34,12 +35,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.StrokeCap
+import com.wngud.oneminutestart.domain.TimerService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun CircularStopWatch(
-    title: String
+    title: String,
+    context: Context
 ) {
     val isDarkMode = isSystemInDarkTheme()
     var elapsedTime by remember { mutableStateOf(0) }
@@ -114,11 +117,23 @@ fun CircularStopWatch(
                 )
             }
 
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
                     isRunning = !isRunning
+                    if(isRunning) {
+                        val serviceIntent = Intent(context, TimerService::class.java).apply {
+                            action = "START_TIMER"
+                        }
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        val serviceIntent = Intent(context, TimerService::class.java).apply {
+                            action = "PAUSE_TIMER"
+                        }
+                        context.startForegroundService(serviceIntent)
+                    }
                 },
                 colors = ButtonColors(
                     MaterialTheme.colorScheme.primary,
@@ -131,10 +146,4 @@ fun CircularStopWatch(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun B() {
-    CircularStopWatch("운동하기")
 }

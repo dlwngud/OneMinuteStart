@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +51,7 @@ fun MoreScreen(
     timerViewModel: TimerViewModel
 ) {
     val taskState by timerViewModel.timerState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
@@ -60,7 +62,8 @@ fun MoreScreen(
                 onBackNavClicked = {
                     navController.navigateUp()
                 },
-                action = {})
+                action = {}
+            )
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -71,7 +74,7 @@ fun MoreScreen(
                 .padding(16.dp)
         ) {
             item {
-                CircularStopWatch(taskState.detailTask.title)
+                CircularStopWatch(taskState.detailTask.title, context)
             }
 
             item {
