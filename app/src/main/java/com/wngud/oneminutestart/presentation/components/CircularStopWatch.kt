@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.StrokeCap
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun CircularStopWatch(
@@ -47,23 +48,23 @@ fun CircularStopWatch(
 
     LaunchedEffect(isRunning) {
         if (isRunning) {
-            while (isRunning) {
-                delay(1000)
-                elapsedTime++
+            launch {
+                while (isRunning) {
+                    delay(1000)
+                    elapsedTime++
+                }
             }
-        }
-    }
 
-    LaunchedEffect(isRunning) {
-        if (isRunning) {
-            while (isRunning) {
-                progress.animateTo(
-                    targetValue = elapsedTime / 3599f,
-                    animationSpec = tween(
-                        durationMillis = 1000,
-                        easing = LinearEasing
+            launch {
+                while (isRunning) {
+                    progress.animateTo(
+                        targetValue = elapsedTime / 3599f,
+                        animationSpec = tween(
+                            durationMillis = 1000,
+                            easing = LinearEasing
+                        )
                     )
-                )
+                }
             }
         }
     }
