@@ -4,22 +4,26 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.os.CountDownTimer
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.wngud.oneminutestart.MyApplication.Companion.TIMER_SERVICE_CHANNEL_ID
 import com.wngud.oneminutestart.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TimerService : Service() {
     private val NOTIFICATION_ID = 1
-    private lateinit var countDownTimer: CountDownTimer
-    private var timeLeftInMillis: Long = 60000 // 1분
+    private var timeLeftInMillis: Long = 0
     private var isTimerRunning: Boolean = false
+    private var timerJob: Job? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.let {
             when (it.action) {
-                "START_TIMER" -> startTimer()
+                "START_TIMER" -> startTimer(it.getLongExtra("time", 0))
                 "PAUSE_TIMER" -> pauseTimer()
                 "RESUME_TIMER" -> resumeTimer()
                 "STOP_TIMER" -> stopTimer()
@@ -28,40 +32,46 @@ class TimerService : Service() {
         return START_STICKY
     }
 
-    private fun startTimer() {
-        Log.d("TimerService", "startTimer")
+    private fun startTimer(time: Long) {
+        timeLeftInMillis = time
         isTimerRunning = true
-        countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                timeLeftInMillis = millisUntilFinished
-                updateNotification()
-            }
 
-            override fun onFinish() {
-                isTimerRunning = false
-                stopForeground(true)
-                stopSelf()
+        if (timerJob == null) {
+            startForeground(NOTIFICATION_ID, createNotification())
+            timerJob = CoroutineScope(Dispatchers.Main).launch {
+                while (timeLeftInMillis > 0 && isTimerRunning) {
+                    delay(1000)
+                    if (!isTimerRunning) {
+                        break
+                    }
+                    timeLeftInMillis -= 1000
+                    updateNotification()
+                }
+                if (timeLeftInMillis <= 0) {
+                    stopSelf()
+                }
+                timerJob = null
             }
-        }.start()
-        startForeground(NOTIFICATION_ID, createNotification())
-    }
-
-    private fun pauseTimer() {
-        if (isTimerRunning) {
-            countDownTimer.cancel()
-            isTimerRunning = false
+        } else {
             updateNotification()
         }
     }
 
+    private fun pauseTimer() {
+        isTimerRunning = false
+        updateNotification()
+    }
+
     private fun resumeTimer() {
-        if (!isTimerRunning) {
-            startTimer()
-        }
+        isTimerRunning = true
+        updateNotification()
+        startTimer(timeLeftInMillis)
     }
 
     private fun stopTimer() {
-        countDownTimer.cancel()
+        timerJob?.cancel()
+        timerJob = null
+        isTimerRunning = false
         stopForeground(true)
         stopSelf()
     }
@@ -80,9 +90,16 @@ class TimerService : Service() {
             dismissedIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
+        val seconds = (timeLeftInMillis / 1000) % 60
+        val minutes = (timeLeftInMillis / 1000) / 60
+        val contentText = if (minutes > 0) {
+            "남은 시간: ${minutes}분 ${seconds}초"
+        } else {
+            "남은 시간: ${seconds}초"
+        }
         val builder = NotificationCompat.Builder(this, TIMER_SERVICE_CHANNEL_ID)
             .setContentTitle("타이머")
-            .setContentText("남은 시간: ${timeLeftInMillis / 1000}초")
+            .setContentText(contentText)
             .setDeleteIntent(dismissedPendingIntent)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .addAction(R.drawable.baseline_timer_24, "종료", getPendingIntent("STOP_TIMER"))
@@ -109,4 +126,9 @@ class TimerService : Service() {
     }
 
     override fun onBind(intent: Intent?) = null
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("TimerService", "서비스 종료")
+    }
 }
