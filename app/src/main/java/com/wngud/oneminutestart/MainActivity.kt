@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
             OneMinuteStartTheme(darkTheme = isDarkMode) {
                 Surface(
-                    modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+                    modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     OneMinuteApp()
