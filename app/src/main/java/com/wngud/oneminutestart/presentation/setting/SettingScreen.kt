@@ -73,8 +73,7 @@ fun SettingScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(it)
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
@@ -106,7 +105,10 @@ fun ProfileSection(
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
     ) {
         Row(
             modifier = Modifier,
@@ -176,7 +178,9 @@ fun ThemeSection(mainViewModel: MainViewModel) {
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -206,7 +210,9 @@ fun NotificationSection() {
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -244,7 +250,10 @@ fun NotificationSection() {
 fun TimerSection() {
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),

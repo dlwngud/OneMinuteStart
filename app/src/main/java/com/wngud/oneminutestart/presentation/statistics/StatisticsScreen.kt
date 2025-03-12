@@ -126,7 +126,6 @@ fun StatisticsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingValues.calculateTopPadding())
-                .padding(16.dp)
         ) {
             item {
                 ContinuedAchieveCard(maxDay = 15, current = 15)
@@ -135,7 +134,11 @@ fun StatisticsScreen(
             }
 
             item {
-                Row {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
                     StatisticsItem(
                         modifier = Modifier
                             .weight(1f)
@@ -173,7 +176,9 @@ fun StatisticsScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
+                        .wrapContentHeight()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     if (selectedChoiceIndex.value == 0) {
@@ -325,6 +330,8 @@ fun ContinuedAchieveCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = 16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
