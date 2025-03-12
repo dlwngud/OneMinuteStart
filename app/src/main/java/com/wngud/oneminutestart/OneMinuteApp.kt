@@ -19,7 +19,11 @@ fun OneMinuteApp() {
             BottomNavigationBar(navController = navController)
         }
     ) {
-        Box(modifier = Modifier.padding(it)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = it.calculateBottomPadding())
+        ) {
             Navigation(
                 navController = navController
             )

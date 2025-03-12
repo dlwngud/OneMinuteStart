@@ -31,23 +31,32 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.wngud.oneminutestart.MainViewModel
 import com.wngud.oneminutestart.domain.TimerService
+import com.wngud.oneminutestart.presentation.timer.TimerViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun CircularStopWatch(
     title: String,
-    context: Context
+    context: Context,
+    timerViewModel: TimerViewModel,
+    mainViewModel: MainViewModel = hiltViewModel()
 ) {
-    val isDarkMode = isSystemInDarkTheme()
+    val isDarkMode by mainViewModel.isDarkMode.collectAsState()
     var elapsedTime by remember { mutableStateOf(0) }
     var isRunning by remember { mutableStateOf(false) }
     val progress = remember { Animatable(0f) }
+
+    val timerState by timerViewModel.timerState.collectAsStateWithLifecycle()
 
     LaunchedEffect(isRunning) {
         if (isRunning) {
@@ -126,7 +135,9 @@ fun CircularStopWatch(
                     if(isRunning) {
                         val serviceIntent = Intent(context, TimerService::class.java).apply {
                             action = "START_TIMER"
+                            putExtra("time",1*60*1000L)
                         }
+                        timerViewModel.startTimer(1*60*1000L)
                         context.startForegroundService(serviceIntent)
                     } else {
                         val serviceIntent = Intent(context, TimerService::class.java).apply {
