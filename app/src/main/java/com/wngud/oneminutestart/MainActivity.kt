@@ -1,6 +1,7 @@
 package com.wngud.oneminutestart
 
 import android.os.Bundle
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,6 +25,8 @@ class MainActivity : ComponentActivity() {
             val viewModel: MainViewModel = hiltViewModel()
             val isDarkMode by viewModel.isDarkMode.collectAsState()
 
+            setStatusBarTextColor(isDarkMode)
+
             OneMinuteStartTheme(darkTheme = isDarkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -34,4 +37,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun setStatusBarTextColor(isDarkMode: Boolean) {
+        with(window) {
+            insetsController?.setSystemBarsAppearance(
+                if (isDarkMode) 0 else WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+            )
+        }
+    }
 }
+
