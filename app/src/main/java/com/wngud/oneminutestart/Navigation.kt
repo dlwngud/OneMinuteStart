@@ -54,22 +54,27 @@ fun Navigation(
         composable(
             Screen.TimerScreen.route,
             exitTransition = {
-                if (navController.currentBackStackEntry?.destination?.route == Screen.OneMinuteScreen.route
-                    || navController.currentBackStackEntry?.destination?.route == Screen.MoreScreen.route) {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
-                        animationSpec = tween(700)
-                    )
-                } else {
-                    null
+                when (targetState.destination.route) {
+                    Screen.OneMinuteScreen.route, Screen.MoreScreen.route -> {
+                        slideOutOfContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
+                            animationSpec = tween(700)
+                        )
+                    }
+                    else -> null
                 }
             },
             popEnterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
-                    animationSpec = tween(700)
-                )
-            },
+                when (initialState.destination.route) {
+                    Screen.OneMinuteScreen.route, Screen.MoreScreen.route -> {
+                        slideIntoContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
+                            animationSpec = tween(700)
+                        )
+                    }
+                    else -> null
+                }
+            }
         ) { entry ->
             val parentEntry = remember(entry) {
                 navController.getBackStackEntry(Screen.TimerScreen.route)
@@ -83,7 +88,13 @@ fun Navigation(
                 timerViewModel = timerViewModel
             )
         }
-        composable(Screen.StatisticsScreen.route) {
+        composable(
+            Screen.StatisticsScreen.route,
+            enterTransition = { null },
+            exitTransition = { null },
+            popEnterTransition = { null },
+            popExitTransition = { null }
+        ) {
             StatisticsScreen(
                 navController = navController,
                 onBackPressed = {
@@ -92,7 +103,13 @@ fun Navigation(
                 }
             )
         }
-        composable(Screen.SettingScreen.route) {
+        composable(
+            Screen.SettingScreen.route,
+            enterTransition = { null },
+            exitTransition = { null },
+            popEnterTransition = { null },
+            popExitTransition = { null }
+        ) {
             SettingScreen(
                 navController = navController,
                 onBackPressed = {
@@ -143,12 +160,14 @@ fun Navigation(
                     nullable = false
                 }
             ),
+            // Enter from right when going to MoreScreen
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
                     animationSpec = tween(700)
                 )
             },
+            // Exit to left when going back from MoreScreen
             popExitTransition = {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
