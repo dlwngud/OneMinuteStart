@@ -186,7 +186,7 @@ fun Navigation(
         ) { entry ->
             LaunchedEffect(Unit) {
                 val activity = context as? ComponentActivity
-                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             }
             // 화면을 떠날 때 세로 모드로 복원
             DisposableEffect(Unit) {
