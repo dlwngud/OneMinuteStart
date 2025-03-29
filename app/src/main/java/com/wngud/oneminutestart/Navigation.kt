@@ -1,6 +1,8 @@
 package com.wngud.oneminutestart
 
 import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -21,12 +23,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -49,6 +54,12 @@ fun Navigation(
     navController: NavHostController
 ) {
     val shouldExitApp = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        val activity = context as? ComponentActivity
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
 
     NavHost(navController = navController, startDestination = Screen.TimerScreen.route) {
         composable(
@@ -160,14 +171,12 @@ fun Navigation(
                     nullable = false
                 }
             ),
-            // Enter from right when going to MoreScreen
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
                     animationSpec = tween(700)
                 )
             },
-            // Exit to left when going back from MoreScreen
             popExitTransition = {
                 slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
@@ -175,6 +184,17 @@ fun Navigation(
                 )
             }
         ) { entry ->
+            LaunchedEffect(Unit) {
+                val activity = context as? ComponentActivity
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+            // 화면을 떠날 때 세로 모드로 복원
+            DisposableEffect(Unit) {
+                onDispose {
+                    val activity = context as? ComponentActivity
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                }
+            }
             val parentEntry = remember(entry) {
                 navController.getBackStackEntry(Screen.TimerScreen.route)
             }
