@@ -6,6 +6,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [TaskEntity::class], version = 4, exportSchema = false)
+
 abstract class TaskDatabase : RoomDatabase() {
     // DAO 정의
     abstract fun taskDao(): TaskDao
