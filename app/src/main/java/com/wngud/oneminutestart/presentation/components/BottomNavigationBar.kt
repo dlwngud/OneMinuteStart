@@ -1,21 +1,26 @@
 package com.wngud.oneminutestart.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.wngud.oneminutestart.MainViewModel
 import com.wngud.oneminutestart.Screen
 
 @Composable
@@ -25,7 +30,8 @@ fun BottomNavigationBar(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val isDarkTheme = isSystemInDarkTheme()
+    val viewModel: MainViewModel = hiltViewModel()
+    val isDarkTheme by viewModel.isDarkMode.collectAsState()
 
     val bottomScreens = listOf(
         Screen.TimerScreen,
@@ -36,9 +42,11 @@ fun BottomNavigationBar(
     AnimatedVisibility(
         visible = bottomScreens.map { it.route }.contains(currentRoute)
     ) {
-        NavigationBar {
+        BottomNavigation(
+            backgroundColor = MaterialTheme.colorScheme.background
+        ) {
             bottomScreens.forEach { item ->
-                NavigationBarItem(
+                BottomNavigationItem(
                     selected = currentRoute == item.route,
                     alwaysShowLabel = true,
                     label = {
@@ -67,9 +75,6 @@ fun BottomNavigationBar(
                             }
                         )
                     },
-                    colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = Color.Transparent
-                    ),
                     onClick = {
                         navController.navigate(item.route) {
                             launchSingleTop = true

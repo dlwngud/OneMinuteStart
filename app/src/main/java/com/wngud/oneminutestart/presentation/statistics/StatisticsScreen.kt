@@ -37,6 +37,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -55,12 +56,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.wngud.oneminutestart.MainViewModel
 import com.wngud.oneminutestart.R
 import com.wngud.oneminutestart.presentation.components.AppBar
 import ir.ehsannarmani.compose_charts.LineChart
@@ -82,7 +85,8 @@ fun StatisticsScreen(
     navController: NavHostController,
     onBackPressed: () -> Unit,
 ) {
-    val isDarkMode = isSystemInDarkTheme()
+    val viewModel: MainViewModel = hiltViewModel()
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
     val choices = remember { mutableStateListOf("주간", "월간") }
     var selectedChoiceIndex = remember { mutableIntStateOf(0) }
 
@@ -121,8 +125,7 @@ fun StatisticsScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
+                .padding(top = paddingValues.calculateTopPadding())
         ) {
             item {
                 ContinuedAchieveCard(maxDay = 15, current = 15)
@@ -131,7 +134,11 @@ fun StatisticsScreen(
             }
 
             item {
-                Row {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
                     StatisticsItem(
                         modifier = Modifier
                             .weight(1f)
@@ -169,7 +176,9 @@ fun StatisticsScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
+                        .wrapContentHeight()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     if (selectedChoiceIndex.value == 0) {
@@ -321,6 +330,8 @@ fun ContinuedAchieveCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = 16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

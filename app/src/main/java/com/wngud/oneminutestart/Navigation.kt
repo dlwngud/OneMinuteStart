@@ -1,6 +1,8 @@
 package com.wngud.oneminutestart
 
 import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -21,12 +23,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -49,27 +54,38 @@ fun Navigation(
     navController: NavHostController
 ) {
     val shouldExitApp = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        val activity = context as? ComponentActivity
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
 
     NavHost(navController = navController, startDestination = Screen.TimerScreen.route) {
         composable(
             Screen.TimerScreen.route,
             exitTransition = {
-                if (navController.currentBackStackEntry?.destination?.route == Screen.OneMinuteScreen.route
-                    || navController.currentBackStackEntry?.destination?.route == Screen.MoreScreen.route) {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
-                        animationSpec = tween(700)
-                    )
-                } else {
-                    null
+                when (targetState.destination.route) {
+                    Screen.OneMinuteScreen.route, Screen.MoreScreen.route -> {
+                        slideOutOfContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
+                            animationSpec = tween(700)
+                        )
+                    }
+                    else -> null
                 }
             },
             popEnterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
-                    animationSpec = tween(700)
-                )
-            },
+                when (initialState.destination.route) {
+                    Screen.OneMinuteScreen.route, Screen.MoreScreen.route -> {
+                        slideIntoContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
+                            animationSpec = tween(700)
+                        )
+                    }
+                    else -> null
+                }
+            }
         ) { entry ->
             val parentEntry = remember(entry) {
                 navController.getBackStackEntry(Screen.TimerScreen.route)
@@ -83,7 +99,13 @@ fun Navigation(
                 timerViewModel = timerViewModel
             )
         }
-        composable(Screen.StatisticsScreen.route) {
+        composable(
+            Screen.StatisticsScreen.route,
+            enterTransition = { null },
+            exitTransition = { null },
+            popEnterTransition = { null },
+            popExitTransition = { null }
+        ) {
             StatisticsScreen(
                 navController = navController,
                 onBackPressed = {
@@ -92,7 +114,13 @@ fun Navigation(
                 }
             )
         }
-        composable(Screen.SettingScreen.route) {
+        composable(
+            Screen.SettingScreen.route,
+            enterTransition = { null },
+            exitTransition = { null },
+            popEnterTransition = { null },
+            popExitTransition = { null }
+        ) {
             SettingScreen(
                 navController = navController,
                 onBackPressed = {

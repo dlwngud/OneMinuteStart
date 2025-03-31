@@ -1,5 +1,12 @@
 package com.wngud.oneminutestart.presentation.timer
 
+import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,12 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.Icon
@@ -27,6 +29,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,11 +39,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.wngud.oneminutestart.R
+import com.wngud.oneminutestart.domain.TimerService
 import com.wngud.oneminutestart.presentation.components.AppBar
 import com.wngud.oneminutestart.presentation.components.CircularStopWatch
 
@@ -50,6 +57,41 @@ fun MoreScreen(
     timerViewModel: TimerViewModel
 ) {
     val taskState by timerViewModel.timerState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val activity = getActivityFromCompose()
+    var elapsedTime by remember { mutableStateOf(0L) }
+    var isRunning by remember { mutableStateOf(false) }
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "TIMER_UPDATE" -> {
+                    elapsedTime = intent.getLongExtra("elapsedTime", 0L)
+                    isRunning = intent.getBooleanExtra("isRunning", false)
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val intentFilter = IntentFilter().apply {
+            addAction("TIMER_UPDATE")
+        }
+
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            intentFilter,
+            ContextCompat.RECEIVER_EXPORTED
+        )
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            context.unregisterReceiver(receiver)
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
@@ -59,8 +101,10 @@ fun MoreScreen(
                 hasBackButton = true,
                 onBackNavClicked = {
                     navController.navigateUp()
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 },
-                action = {})
+                action = {}
+            )
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -71,7 +115,26 @@ fun MoreScreen(
                 .padding(16.dp)
         ) {
             item {
-                CircularStopWatch(taskState.detailTask.title)
+                CircularStopWatch(
+                    onStart = {
+                        val serviceIntent = Intent(context, TimerService::class.java).apply {
+                            action = "START_TIMER"
+                        }
+                        context.startForegroundService(serviceIntent)
+                    },
+                    onStop = {
+                        val serviceIntent = Intent(context, TimerService::class.java).apply {
+                            action = "PAUSE_TIMER"
+                        }
+                        context.startForegroundService(serviceIntent)
+                    },
+                    onReset = {
+                        val serviceIntent = Intent(context, TimerService::class.java).apply {
+                            action = "STOP_TIMER"
+                        }
+                        context.startForegroundService(serviceIntent)
+                    }
+                )
             }
 
             item {
@@ -164,4 +227,22 @@ fun WhiteNoiseItem(
             )
         }
     }
+}
+
+@Composable
+fun getActivityFromCompose(): Activity? {
+    val context = LocalContext.current
+    return context.findActivity()
+}
+
+// Activity를 찾아내는 확장 함수
+fun Context.findActivity(): Activity? {
+    var currentContext = this
+    while (currentContext is ContextWrapper) {
+        if (currentContext is Activity) {
+            return currentContext
+        }
+        currentContext = currentContext.baseContext
+    }
+    return null
 }

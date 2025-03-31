@@ -31,8 +31,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,13 +43,17 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.wngud.oneminutestart.MainViewModel
 import com.wngud.oneminutestart.presentation.components.AppBar
 
 @Composable
 fun SettingScreen(
     navController: NavHostController,
     onBackPressed: () -> Unit,
+    mainViewModel: MainViewModel = hiltViewModel()
 ) {
     var nickName by remember { mutableStateOf("쭉가") }
 
@@ -70,9 +72,8 @@ fun SettingScreen(
     ) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(it)
-                .padding(16.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
@@ -82,7 +83,7 @@ fun SettingScreen(
                 )
             }
             item {
-                ThemeSection()
+                ThemeSection(mainViewModel)
             }
             item {
                 NotificationSection()
@@ -104,7 +105,10 @@ fun ProfileSection(
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
     ) {
         Row(
             modifier = Modifier,
@@ -168,13 +172,15 @@ fun ProfileSection(
 }
 
 @Composable
-fun ThemeSection() {
-    var isDarkMode by remember { mutableStateOf(false) }
-    var modeString by remember { mutableStateOf("라이트 모드") }
+fun ThemeSection(mainViewModel: MainViewModel) {
+    val isDarkMode by mainViewModel.isDarkMode.collectAsStateWithLifecycle()
+    var modeString by remember { mutableStateOf(if (isDarkMode) "다크 모드" else "라이트 모드") }
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -189,8 +195,8 @@ fun ThemeSection() {
                 Switch(
                     checked = isDarkMode,
                     onCheckedChange = { darkMode ->
-                        isDarkMode = darkMode
-                        modeString = if (isDarkMode) "다크 모드" else "라이트 모드"
+                        mainViewModel.toggleTheme(darkMode)
+                        modeString = if (darkMode) "다크 모드" else "라이트 모드"
                     })
             }
         }
@@ -204,7 +210,9 @@ fun NotificationSection() {
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -242,7 +250,10 @@ fun NotificationSection() {
 fun TimerSection() {
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),

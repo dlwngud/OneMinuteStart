@@ -27,10 +27,13 @@ import com.wngud.oneminutestart.utils.formatTime
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.wngud.oneminutestart.MainViewModel
 import kotlinx.coroutines.delay
 
 @Composable
@@ -38,7 +41,8 @@ fun CircularCountDownTimer(
     title: String,
     oneMinuteEnd: () -> Unit
 ) {
-    val isDarkMode = isSystemInDarkTheme()
+    val viewModel: MainViewModel = hiltViewModel()
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
     var leftTime by remember { mutableStateOf(60) }
     val progress =
         remember { Animatable(leftTime / 60.0f) }

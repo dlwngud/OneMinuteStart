@@ -10,11 +10,13 @@ data class Task(
     val title: String = "",              // 작업 제목
     val reminderTime: String = "",      // 알림 시간 (HH:mm 포맷)
     val isCompletedOneMinute: Boolean = false, // 완료 여부
+    val elapsedTime: Long = 0L
 ): Parcelable
 
 fun Task.toTaskEntity(): TaskEntity = TaskEntity(
     id = this.id,
     title = this.title,
     reminderTime = this.reminderTime,
-    isCompletedOneMinute = this.isCompletedOneMinute
+    isCompletedOneMinute = this.isCompletedOneMinute,
+    elapsedTime = this.elapsedTime
 )
